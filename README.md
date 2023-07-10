@@ -5,7 +5,6 @@ This program performs analysis on neighborhood data extracted from a JSON file. 
 
 ## Prerequisites
 
-- .NET Framework
 - Newtonsoft.Json library
 
 ## Getting Started
