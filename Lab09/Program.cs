@@ -1,4 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
 namespace Lab09
 {
     internal class Program
@@ -11,43 +16,68 @@ namespace Lab09
             // Deserialize the JSON data into a RootObject
             var rootObject = JsonConvert.DeserializeObject<RootObject>(jsonData);
 
+            Console.WriteLine("========== Neighborhood Analysis ==========\n");
+
             // Extract the neighborhoods from the features
-            var neighborhoods = rootObject.features.Select(f => f.properties.neighborhood);
+            var neighborhoods = rootObject.features.Select(f => f.properties.neighborhood).ToList();
 
-            // Query 1: Output all neighborhoods
-            Console.WriteLine("All neighborhoods:");
-            Console.WriteLine(string.Join(", ", neighborhoods));
-            Console.WriteLine("Final Total: " + neighborhoods.Count() + " neighborhoods");
+            Console.WriteLine("Query 1: All neighborhoods\n");
+            PrintMultiColumnTable(neighborhoods);
+            Console.WriteLine($"Total: {neighborhoods.Count} neighborhoods\n");
 
-            // Query 2: Filter out neighborhoods without names
-            var namedNeighborhoods = neighborhoods.Where(n => !string.IsNullOrEmpty(n));
-            Console.WriteLine("\nNamed neighborhoods:");
-            Console.WriteLine(string.Join(", ", namedNeighborhoods));
-            Console.WriteLine("Final Total: " + namedNeighborhoods.Count() + " neighborhoods");
+            Console.WriteLine("Query 2: Named neighborhoods\n");
+            var namedNeighborhoods = neighborhoods.Where(n => !string.IsNullOrEmpty(n)).ToList();
+            PrintMultiColumnTable(namedNeighborhoods);
+            Console.WriteLine($"Total: {namedNeighborhoods.Count} neighborhoods\n");
 
-            // Query 3: Remove duplicates
-            var distinctNeighborhoods = namedNeighborhoods.Distinct();
-            Console.WriteLine("\nDistinct neighborhoods:");
-            Console.WriteLine(string.Join(", ", distinctNeighborhoods));
-            Console.WriteLine("Final Total: " + distinctNeighborhoods.Count() + " neighborhoods");
+            Console.WriteLine("Query 3: Distinct neighborhoods\n");
+            var distinctNeighborhoods = namedNeighborhoods.Distinct().ToList();
+            PrintMultiColumnTable(distinctNeighborhoods);
+            Console.WriteLine($"Total: {distinctNeighborhoods.Count} neighborhoods\n");
 
-            // Query 4: Consolidated single query
+            Console.WriteLine("Query 4: Consolidated neighborhoods\n");
             var consolidatedNeighborhoods = rootObject.features
                 .Select(f => f.properties.neighborhood)
                 .Where(n => !string.IsNullOrEmpty(n))
-                .Distinct();
-            Console.WriteLine("\nConsolidated neighborhoods:");
-            Console.WriteLine(string.Join(", ", consolidatedNeighborhoods));
-            Console.WriteLine("Final Total: " + consolidatedNeighborhoods.Count() + " neighborhoods");
+                .Distinct()
+                .ToList();
+            PrintMultiColumnTable(consolidatedNeighborhoods);
+            Console.WriteLine($"Total: {consolidatedNeighborhoods.Count} neighborhoods\n");
 
-            // Example of using LINQ query syntax instead of method calls
+            Console.WriteLine("Query 4 (using query syntax): Consolidated neighborhoods\n");
             var consolidatedNeighborhoodsQuerySyntax = (from f in rootObject.features
                                                         let n = f.properties.neighborhood
                                                         where !string.IsNullOrEmpty(n)
-                                                        select n).Distinct();
-            Console.WriteLine("\nConsolidated neighborhoods (using query syntax):");
-            Console.WriteLine(string.Join(", ", consolidatedNeighborhoodsQuerySyntax));
-            Console.WriteLine("Final Total: " + consolidatedNeighborhoodsQuerySyntax.Count() + " neighborhoods");
+                                                        select n).Distinct().ToList();
+            PrintMultiColumnTable(consolidatedNeighborhoodsQuerySyntax);
+            Console.WriteLine($"Total: {consolidatedNeighborhoodsQuerySyntax.Count} neighborhoods\n");
+        }
+
+        static void PrintMultiColumnTable(IEnumerable<string> neighborhoods, int columns = 3)
+        {
+            var neighborhoodList = neighborhoods.ToList();
+            int rows = (int)Math.Ceiling((double)neighborhoodList.Count / columns);
+
+            var columnWidth = (Console.WindowWidth - 4) / columns;
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    int index = i + j * rows;
+                    if (index < neighborhoodList.Count)
+                    {
+                        Console.Write($"| {neighborhoodList[index],-18}");
+                    }
+                    else
+                    {
+                        Console.Write("|".PadRight(columnWidth + 2));
+                    }
+                }
+                Console.WriteLine("|");
+            }
+
+            Console.WriteLine(new string('-', Console.WindowWidth - 1));
         }
     }
 }
