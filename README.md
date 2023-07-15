@@ -24,3 +24,5 @@ The program performs the following neighborhood queries:
 3. Distinct neighborhoods: Removes duplicate neighborhoods.
 4. Consolidated neighborhoods: Combines all the previous queries into a single query.
 
+## Console Image:
+![Screenshot 2023-07-15 204233](https://github.com/bashar-27/Lab09-LINQ-Manhattan/assets/83985765/af3647c4-3560-44d8-8811-cdd691dc4ea5)
